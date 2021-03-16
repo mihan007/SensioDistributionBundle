@@ -15,7 +15,7 @@ use Symfony\Component\ClassLoader\ClassCollectionLoader;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\PhpExecutableFinder;
-use Composer\Script\CommandEvent;
+use Composer\Script\Event;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -28,9 +28,9 @@ class ScriptHandler
      * The bootstrap file contains PHP file that are always needed by the application.
      * It speeds up the application bootstrapping.
      *
-     * @param $event CommandEvent A instance
+     * @param $event Event A instance
      */
-    public static function buildBootstrap(CommandEvent $event)
+    public static function buildBootstrap(Event $event)
     {
         $options = self::getOptions($event);
         $appDir = $options['symfony-app-dir'];
@@ -48,14 +48,14 @@ class ScriptHandler
      * Sets up deployment target specific features.
      * Could be custom web server configs, boot command files etc.
      *
-     * @param $event CommandEvent An instance
+     * @param $event Event An instance
      */
-    public static function prepareDeploymentTarget(CommandEvent $event)
+    public static function prepareDeploymentTarget(Event $event)
     {
         self::prepareDeploymentTargetHeroku($event);
     }
 
-    protected static function prepareDeploymentTargetHeroku(CommandEvent $event)
+    protected static function prepareDeploymentTargetHeroku(Event $event)
     {
         $options = self::getOptions($event);
         if (($stack = getenv('STACK')) && ($stack == 'cedar' || $stack == 'cedar-14')) {
@@ -70,9 +70,9 @@ class ScriptHandler
     /**
      * Clears the Symfony cache.
      *
-     * @param $event CommandEvent A instance
+     * @param $event Event A instance
      */
-    public static function clearCache(CommandEvent $event)
+    public static function clearCache(Event $event)
     {
         $options = self::getOptions($event);
         $appDir = $options['symfony-app-dir'];
@@ -96,9 +96,9 @@ class ScriptHandler
      * strict user permission checks (which can be done on Windows 7 but not on Windows
      * Vista).
      *
-     * @param $event CommandEvent A instance
+     * @param $event Event A instance
      */
-    public static function installAssets(CommandEvent $event)
+    public static function installAssets(Event $event)
     {
         $options = self::getOptions($event);
         $appDir = $options['symfony-app-dir'];
@@ -123,9 +123,9 @@ class ScriptHandler
     /**
      * Updated the requirements file.
      *
-     * @param $event CommandEvent A instance
+     * @param $event Event A instance
      */
-    public static function installRequirementsFile(CommandEvent $event)
+    public static function installRequirementsFile(Event $event)
     {
         $options = self::getOptions($event);
         $appDir = $options['symfony-app-dir'];
@@ -206,7 +206,7 @@ EOF
             , substr(file_get_contents($file), 5)));
     }
 
-    protected static function executeCommand(CommandEvent $event, $appDir, $cmd, $timeout = 300)
+    protected static function executeCommand(Event $event, $appDir, $cmd, $timeout = 300)
     {
         $php = escapeshellarg(self::getPhp());
         $console = escapeshellarg($appDir.'/console');
@@ -234,7 +234,7 @@ EOF
         }
     }
 
-    protected static function getOptions(CommandEvent $event)
+    protected static function getOptions(Event $event)
     {
         $options = array_merge(array(
             'symfony-app-dir' => 'app',
